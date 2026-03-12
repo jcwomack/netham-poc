@@ -1,0 +1,15 @@
+// SPDX-FileCopyrightText: © 2026 James C. Womack
+// SPDX-License-Identifier: MIT
+{
+  "name": "claude-code-container",
+  "build": {
+    "dockerfile": "Containerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code"
+      ]
+    }
+  }
+}
