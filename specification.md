@@ -1,3 +1,7 @@
+<!--
+SPDX-FileCopyrightText: © 2026 James C. Womack
+SPDX-License-Identifier: CC-BY-SA-4.0
+-->
 # Specification for `netham` proof-of-concept
 
 ## Principles

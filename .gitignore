@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: © 2026 James C. Womack
+# SPDX-License-Identifier: CC0-1.0
 __pycache__/
 *.py[cod]
 /uv.lock
