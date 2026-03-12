@@ -14,6 +14,8 @@ from pathlib import Path
 
 import boto3
 import botocore.exceptions
+from botocore import UNSIGNED
+from botocore.config import Config as BotocoreConfig
 
 from netham.config import Config
 
@@ -63,7 +65,11 @@ def assume_role(config: Config, access_token: str, role_session_name: str) -> di
         ``SecretAccessKey``, and ``SessionToken``.
     :raises SystemExit: If the STS call fails.
     """
-    client = boto3.client("sts", endpoint_url=config.sts_endpoint_url)
+    client = boto3.client(
+        "sts",
+        endpoint_url=config.sts_endpoint_url,
+        config=BotocoreConfig(signature_version=UNSIGNED),
+    )
     try:
         response = client.assume_role_with_web_identity(
             RoleArn=config.role_arn,
