@@ -9,17 +9,19 @@ SPDX-License-Identifier: CC-BY-SA-4.0
 
 `netham` is a command line tool for acquiring temporary AWS credentials for a role assumed using the STS API via an OAuth 2.0/OpenID Connect web identity token.
 
-The primary use case is to enable service users with identities stored in an OAuth 2.0/OpenID Connect compliant IAM service (e.g. Keycloak) to acquire access to resources by assuming a role that has provides access to those resources.
+The primary use case is to enable service users with identities stored in an OAuth 2.0/OpenID Connect compliant IAM service (e.g. Keycloak) to acquire access to resources via an AWS-style API (e.g. S3) by assuming a role that has access to those resources.
 
 ## Motivating example
 
+Access to per-user S3 buckets using a OAuth 2.0/OIDC web identity token.
+
 ### Setup
 
-* Each user is provisioned a bucket in S3-compatible storage provider names with a unique identifier
-* The S3-compatible storage provider implements the STS API and has a role that can be assumed using the AssumeRoleWithWebIdentity endpoint
-* The policies that grant access to per-user buckets on the basis of the value in the `sub` claim of the token
+* Each user is provisioned a bucket in an S3-compatible storage provider, named with a unique per-user identifier
+* The S3-compatible storage provider implements the STS API and has a role that can be assumed using the `AssumeRoleWithWebIdentity` endpoint
+* The policies that grant access to per-user buckets restrict the accessible buckets on the basis of the value in the `sub` claim of the token
 * Each user has an identity registered with a OAuth 2.0/OpenID Connect compliant IAM service and the provider has been registered to the S3-compatible storage as an IdP 
-* A client has been created in the IAM service which issues tokens to authenticated users where the `sub` claim contains the unique identifier for the per-user bucket
+* A client has been created in the IAM service which issues tokens to authenticated users where the `sub` claim contains the unique per-user identifier used to name per-user buckets
 
 ### Execution
 
