@@ -22,11 +22,13 @@ The following should be used
 * Python programming language
   * Type annotations
   * Sphinx-style docstrings
+  * Target Python 3.11 and higher
 * `uv` package and project manager
   * Packaged application with `src`-layout
   * Script-type entry point for command line usage
 * AWS Python SDK for communicating with AWS APIs
 * Device authorization grant (RFC 8628) for acquiring an identity token from the IAM service
+* Configuration stored in TOML format
 
 ## Prototype flow
 
