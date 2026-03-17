@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import botocore.exceptions
+from botocore import UNSIGNED
 import pytest
 
 from netham.config import Config
@@ -89,7 +90,10 @@ def test_assume_role_returns_credentials(mock_boto_client: MagicMock) -> None:
 
     result = assume_role(_CONFIG, "mytoken", "user42-session")
 
-    mock_boto_client.assert_called_once_with("sts", endpoint_url=None)
+    _, kwargs = mock_boto_client.call_args
+    assert mock_boto_client.call_args[0] == ("sts",)
+    assert kwargs["endpoint_url"] is None
+    assert kwargs["config"].signature_version == UNSIGNED
     mock_sts.assume_role_with_web_identity.assert_called_once_with(
         RoleArn=_CONFIG.role_arn,
         RoleSessionName="user42-session",
