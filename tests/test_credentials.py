@@ -90,6 +90,7 @@ def test_assume_role_returns_credentials(mock_boto_client: MagicMock) -> None:
 
     result = assume_role(_CONFIG, "mytoken", "user42-session")
 
+    mock_boto_client.assert_called_once()
     _, kwargs = mock_boto_client.call_args
     assert mock_boto_client.call_args[0] == ("sts",)
     assert kwargs["endpoint_url"] is None
