@@ -46,11 +46,18 @@ unzip awscliv2.zip
 rm -r "${TMPDIR}"
 EOF
 
+# Install Claude Code
+RUN <<EOF
+curl -fsSL https://downloads.claude.ai/keys/claude-code.asc -o /etc/apt/keyrings/claude-code.asc
+echo "deb [signed-by=/etc/apt/keyrings/claude-code.asc] https://downloads.claude.ai/claude-code/apt/stable stable main" \
+  | tee /etc/apt/sources.list.d/claude-code.list
+apt-get update && apt-get install claude-code --assume-yes --no-install-recommends
+apt-get clean
+rm -rf /var/lib/apt/lists/*
+EOF
+
 # Switch to standard user
 USER devuser
 
 # Install Python from uv for user
 RUN uv python install --default 3.14
-
-# Install Claude Code for user
-RUN curl -fsSL https://claude.ai/install.sh | bash
