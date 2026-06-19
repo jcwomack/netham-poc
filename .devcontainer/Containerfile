@@ -2,13 +2,19 @@
 # SPDX-License-Identifier: MIT
 FROM docker.io/library/ubuntu:24.04
 
+ARG TARGETARCH
+ARG RCLONE_INSTALL_VERSION=v1.74.3
+
 # Unminimize Ubuntu minimal image, install useful packages for development 
 RUN <<EOF
 yes | unminimize
 apt-get update && apt-get install --assume-yes --no-install-recommends \
   ca-certificates \
   curl \
+  dnsutils \
   git \
+  gpg \
+  iproute2 \
   jq \
   language-pack-en \
   locales \
@@ -16,7 +22,6 @@ apt-get update && apt-get install --assume-yes --no-install-recommends \
   openssl \
   man-db \
   make \
-  rclone \
   reuse \
   tmux \
   vim \
@@ -56,8 +61,28 @@ apt-get clean
 rm -rf /var/lib/apt/lists/*
 EOF
 
+# Install recent rclone release, verifying against GPG-signed SHA256SUMS
+# (rclone from Ubuntu 24.04 LTS repos is old (1.60) and has a bug where it will always send X-Amz-Acl headers that may
+# not be accepted by some S3 storage where ACLs are disabled, e.g. VAST)
+RUN --mount=type=tmpfs,dst=/build-tmp <<EOF 
+cd /build-tmp
+mkdir -v gnupg
+chmod u=rwx,g=,o= gnupg
+gpg --homedir=gnupg --list-keys
+curl -sSL https://rclone.org/KEYS | gpg --homedir=gnupg --import
+curl -sSLO https://downloads.rclone.org/${RCLONE_INSTALL_VERSION}/rclone-${RCLONE_INSTALL_VERSION}-linux-${TARGETARCH}.zip
+curl -sSLO https://downloads.rclone.org/${RCLONE_INSTALL_VERSION}/SHA256SUMS
+gpg --homedir=gnupg --verify SHA256SUMS && \
+  sha256sum --ignore-missing -c SHA256SUMS && \
+  unzip rclone-${RCLONE_INSTALL_VERSION}-linux-${TARGETARCH}.zip && \
+  cp rclone-${RCLONE_INSTALL_VERSION}-linux-${TARGETARCH}/rclone /usr/local/bin/rclone && \
+  chown root:root /usr/local/bin/rclone && \
+  chmod u=rwx,g=rx,o=rx /usr/local/bin/rclone
+EOF
+
 # Switch to standard user
 USER devuser
 
 # Install Python from uv for user
 RUN uv python install --default 3.14
+

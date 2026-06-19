@@ -4,3 +4,4 @@ __pycache__/
 *.py[cod]
 /uv.lock
 /.vscode/
+creds_env.sh
