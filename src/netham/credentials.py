@@ -94,9 +94,9 @@ def write_credentials_script(credentials: dict, output_path: Path) -> None:
     """
     content = (
         "#!/bin/bash\n"
-        f"export AWS_ACCESS_KEY_ID={quote(credentials["AccessKeyId"])}\n"
-        f"export AWS_SECRET_ACCESS_KEY={quote(credentials["SecretAccessKey"])}\n"
-        f"export AWS_SESSION_TOKEN={quote(credentials["SessionToken"])}\n"
+        f'export AWS_ACCESS_KEY_ID={quote(credentials["AccessKeyId"])}\n'
+        f'export AWS_SECRET_ACCESS_KEY={quote(credentials["SecretAccessKey"])}\n'
+        f'export AWS_SESSION_TOKEN={quote(credentials["SessionToken"])}\n'
     )
     output_path.write_text(content, encoding="utf-8")
     output_path.chmod(0o600)
