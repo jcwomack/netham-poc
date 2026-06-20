@@ -51,7 +51,7 @@ def request_device_authorization(config: Config) -> dict:
             timeout=30,
         )
         response.raise_for_status()
-    except requests.HTTPError as exc:
+    except requests.RequestException as exc:
         sys.exit(f"Device authorization request failed: {exc}")
     return response.json()
 
