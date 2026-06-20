@@ -27,9 +27,9 @@ Access to per-user S3 buckets using a OAuth 2.0/OIDC web identity token.
 
 * Each user is provisioned a bucket in an S3-compatible storage provider, named with a unique per-user identifier
 * The S3-compatible storage provider implements the STS API and has a role that can be assumed using the `AssumeRoleWithWebIdentity` endpoint
-* The policies that grant access to per-user buckets restrict the accessible buckets on the basis of the value in the `sub` claim of the token
-* Each user has an identity registered with a OAuth 2.0/OpenID Connect compliant IAM service and the provider has been registered to the S3-compatible storage as an IdP 
-* A client has been created in the IAM service which issues tokens to authenticated users where the `sub` claim contains the unique per-user identifier used to name per-user buckets
+* The policies that grant access to per-user buckets restrict the accessible buckets on the basis of the value in claim(s) of the token (e.g. `sub`)
+* Each user has an identity registered with a OAuth 2.0/OpenID Connect compliant IAM service and the provider has been registered to the S3-compatible storage as an IdP
+* A client has been created in the IAM service which issues tokens to authenticated users where claim(s) contain a unique per-user identifier that maps to bucket access via IAM policy
 
 ### Execution
 
