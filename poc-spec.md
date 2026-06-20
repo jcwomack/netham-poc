@@ -14,7 +14,7 @@ During the early access period we will iterate on the MVP based on user feedback
 
 ## Principles
 
-This is a proof-of-concept that may be used as the basis for a future software package. It is intended as a demonstration of a possible user flow for accessing AWS credentials using a web identity token. If the proof-of-concept is successful, it may be used as a reference for a more robust implementation. For the 
+This is a proof-of-concept that may be used as the basis for a future software package. It is intended as a demonstration of a possible user flow for accessing AWS credentials using a web identity token. If the proof-of-concept is successful, it may be used as a reference for a more robust implementation.
 
 To enable us to assess the proof-of-concept and potentially use as a reference implementation, we should follow these principles:
 
