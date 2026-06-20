@@ -43,9 +43,15 @@ def request_device_authorization(config: Config) -> dict:
     """
     url = _device_auth_endpoint(config.issuer_url)
     try:
-        response = requests.post(url, data={"client_id": config.client_id})
+        response = requests.post(
+            url,
+            data={
+                "client_id": config.client_id
+            },
+            timeout=30,
+        )
         response.raise_for_status()
-    except requests.HTTPError as exc:
+    except requests.RequestException as exc:
         sys.exit(f"Device authorization request failed: {exc}")
     return response.json()
 
@@ -78,6 +84,7 @@ def poll_for_token(config: Config, device_auth_response: dict) -> str:
                     "client_id": config.client_id,
                     "device_code": device_code,
                 },
+                timeout=30,
             )
         except requests.RequestException as exc:
             sys.exit(f"Token request failed: {exc}")

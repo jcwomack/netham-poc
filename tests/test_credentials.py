@@ -7,6 +7,7 @@ import json
 import os
 import stat
 from pathlib import Path
+from shlex import quote
 from unittest.mock import MagicMock, patch
 
 import botocore.exceptions
@@ -127,12 +128,12 @@ def test_write_credentials_script_file_contents(tmp_path: Path) -> None:
     write_credentials_script(_CREDENTIALS, output)
     content = output.read_text(encoding="utf-8")
     assert content.startswith("#!/bin/bash\n")
-    assert 'export AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"' in content
+    assert f'export AWS_ACCESS_KEY_ID={quote("AKIAIOSFODNN7EXAMPLE")}' in content
     assert (
-        'export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"'
+        f'export AWS_SECRET_ACCESS_KEY={quote("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")}'
         in content
     )
-    assert 'export AWS_SESSION_TOKEN="AQoDYXdzEJr..."' in content
+    assert f'export AWS_SESSION_TOKEN={quote("AQoDYXdzEJr...")}' in content
 
 
 def test_write_credentials_script_file_permissions(tmp_path: Path) -> None:

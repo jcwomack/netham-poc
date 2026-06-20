@@ -11,6 +11,7 @@ import base64
 import json
 import sys
 from pathlib import Path
+from shlex import quote
 
 import boto3
 import botocore.exceptions
@@ -24,6 +25,8 @@ def decode_jwt_payload(token: str) -> dict:
     """Decode the payload of a JWT without verifying the signature.
 
     Extracts the claims from the base64url-encoded payload segment of the token.
+    Not verifying signature is fine since not used for sensitive reasons such
+    as access control.
 
     :param token: JWT access token string.
     :returns: Parsed payload claims as a dictionary.
@@ -91,9 +94,9 @@ def write_credentials_script(credentials: dict, output_path: Path) -> None:
     """
     content = (
         "#!/bin/bash\n"
-        f'export AWS_ACCESS_KEY_ID="{credentials["AccessKeyId"]}"\n'
-        f'export AWS_SECRET_ACCESS_KEY="{credentials["SecretAccessKey"]}"\n'
-        f'export AWS_SESSION_TOKEN="{credentials["SessionToken"]}"\n'
+        f'export AWS_ACCESS_KEY_ID={quote(credentials["AccessKeyId"])}\n'
+        f'export AWS_SECRET_ACCESS_KEY={quote(credentials["SecretAccessKey"])}\n'
+        f'export AWS_SESSION_TOKEN={quote(credentials["SessionToken"])}\n'
     )
     output_path.write_text(content, encoding="utf-8")
     output_path.chmod(0o600)
