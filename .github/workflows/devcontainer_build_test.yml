@@ -22,12 +22,12 @@ jobs:
     
     steps:
 
-    - name: Checkout repository
-      uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@v5
 
-    - name: Build and run tests
-      uses: devcontainers/ci@v0.3
-      with:
-        configFile: ./.devcontainer/devcontainer.json
-        push: never
-        runCmd: uv run pytest --verbose tests
+      - name: Build and run tests
+        uses: devcontainers/ci@v0.3
+        with:
+          configFile: ./.devcontainer/devcontainer.json
+          push: never
+          runCmd: uv run pytest --verbose tests
