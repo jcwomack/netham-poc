@@ -15,7 +15,7 @@ The primary use case is to enable service users with identities stored in an OAu
 
 The MVP will be developed and refined in collaboration with users during an early access period, to address pain points and improve user experience. The goal of development during the early access period will be to produce a reference implementation, which can then be used as the basis for a clean reimplementation.
 
-The reimplementation will provide the opportunity to shed technical debt accrued during early development and allow the adoption tooling/processes/constructs that promote security and robustness. It is anticipated that the reimplementation will be done using Rust, to produce strongly typed, memory-safe code that can be distributed as a single self-contained binary.
+The reimplementation will provide the opportunity to shed technical debt accrued during early development and allow the adoption tooling/processes/constructs that promote security and robustness.
 
 The MVP builds on a previous proof-of-concept (PoC) implementation. The specification for the PoC is stored in [`poc-spec.md`](./poc-spec.md), though it should be noted that this is superseded by the content of `AGENTS.md` and `CLAUDE.md`.
 

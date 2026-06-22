@@ -10,7 +10,7 @@ This specification was created to be used as a starting point for a proof-of-con
 
 After demonstrating feasibility it was determined that the proof-of-concept code was sufficiently capable and robust to be used as the basis for a minimal viable product (MVP). The MVP will be developed and refined in collaboration with users during an early access period, to address pain points and improve user experience.
 
-During the early access period we will iterate on the MVP based on user feedback and bug reports, producing a reference implementation. This will then be used as the starting point for a clean reimplementation. The reimplementation will provide the opportunity to shed technical debt accrued during early development and allow the adoption tooling/processes/constructs that promote security and robustness. It is anticipated that the reimplementation will be done using Rust, to produce strongly typed, memory-safe code that can be distributed as a single self-contained binary.
+During the early access period we will iterate on the MVP based on user feedback and bug reports, producing a reference implementation. This will then be used as the starting point for a clean reimplementation. The reimplementation will provide the opportunity to shed technical debt accrued during early development and allow the adoption of tooling/processes/constructs that promote security and robustness.
 
 ## Principles
 
@@ -37,6 +37,25 @@ The following should be used
 * AWS Python SDK for communicating with AWS APIs
 * Device authorization grant (RFC 8628) for acquiring an identity token from the IAM service
 * Configuration stored in TOML format
+
+## Motivating example
+
+Access to per-user S3 buckets using a OAuth 2.0/OIDC web identity token.
+
+### Setup
+
+* Each user is provisioned a bucket in an S3-compatible storage provider, named with a unique per-user identifier
+* The S3-compatible storage provider implements the STS API and has a role that can be assumed using the `AssumeRoleWithWebIdentity` endpoint
+* The policies that grant access to per-user buckets restrict the accessible buckets on the basis of the value in claim(s) of the token (e.g. `sub`)
+* Each user has an identity registered with a OAuth 2.0/OpenID Connect compliant IAM service and the provider has been registered to the S3-compatible storage as an IdP
+* A client has been created in the IAM service which issues tokens to authenticated users where claim(s) contain a unique per-user identifier that maps to bucket access via IAM policy
+
+### Execution
+
+* `netham` is a command line tool run on a user's computer
+* `netham` acts as a client in an OAuth 2.0 flow with the IAM service (authorization server) to acquire a token
+* `netham` immediately exchanges the token for temporary credentials to assume the role needed to access the per-user S3 bucket
+* `netham` returns to the user the AWS credentials in a form that is compatible with S3 clients (e.g. environment variables)
 
 ## Prototype flow
 
