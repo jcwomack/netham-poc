@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT
 """Tests for netham.config."""
 
-import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -17,11 +16,7 @@ def _write_toml(directory: Path, filename: str, content: str) -> Path:
     return path
 
 
-_FULL_CONFIG = (
-    'issuer_url = "https://example.com"\n'
-    'client_id = "myclient"\n'
-    'role_arn = "arn:aws:iam::123:role/R"\n'
-)
+_FULL_CONFIG = 'issuer_url = "https://example.com"\nclient_id = "myclient"\nrole_arn = "arn:aws:iam::123:role/R"\n'
 
 
 def test_loads_required_fields_from_default_file(tmp_path: Path) -> None:
@@ -42,9 +37,7 @@ def test_loads_required_fields_from_default_file(tmp_path: Path) -> None:
 def test_local_file_overrides_default_file(tmp_path: Path) -> None:
     """Values in the local config file override those in the default file."""
     default = _write_toml(tmp_path, "config.toml", _FULL_CONFIG)
-    local = _write_toml(
-        tmp_path, "netham.toml", 'issuer_url = "https://local.example.com"\n'
-    )
+    local = _write_toml(tmp_path, "netham.toml", 'issuer_url = "https://local.example.com"\n')
     with (
         patch("netham.config.DEFAULT_CONFIG_PATH", default),
         patch("netham.config.LOCAL_CONFIG_PATH", local),

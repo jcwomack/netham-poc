@@ -11,8 +11,8 @@ from shlex import quote
 from unittest.mock import MagicMock, patch
 
 import botocore.exceptions
-from botocore import UNSIGNED
 import pytest
+from botocore import UNSIGNED
 
 from netham.config import Config
 from netham.credentials import (
@@ -38,9 +38,7 @@ _CREDENTIALS = {
 def _make_jwt(payload: dict) -> str:
     """Build a minimal fake JWT with the given payload."""
     header_b64 = base64.urlsafe_b64encode(b'{"alg":"none"}').rstrip(b"=").decode()
-    payload_b64 = (
-        base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b"=").decode()
-    )
+    payload_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b"=").decode()
     return f"{header_b64}.{payload_b64}.fakesignature"
 
 
@@ -108,11 +106,9 @@ def test_assume_role_returns_credentials(mock_boto_client: MagicMock) -> None:
 def test_assume_role_client_error_exits(mock_boto_client: MagicMock) -> None:
     """A botocore ClientError causes SystemExit."""
     mock_sts = MagicMock()
-    mock_sts.assume_role_with_web_identity.side_effect = (
-        botocore.exceptions.ClientError(
-            {"Error": {"Code": "AccessDenied", "Message": "denied"}},
-            "AssumeRoleWithWebIdentity",
-        )
+    mock_sts.assume_role_with_web_identity.side_effect = botocore.exceptions.ClientError(
+        {"Error": {"Code": "AccessDenied", "Message": "denied"}},
+        "AssumeRoleWithWebIdentity",
     )
     mock_boto_client.return_value = mock_sts
     with pytest.raises(SystemExit):
@@ -128,12 +124,9 @@ def test_write_credentials_script_file_contents(tmp_path: Path) -> None:
     write_credentials_script(_CREDENTIALS, output)
     content = output.read_text(encoding="utf-8")
     assert content.startswith("#!/bin/bash\n")
-    assert f'export AWS_ACCESS_KEY_ID={quote("AKIAIOSFODNN7EXAMPLE")}' in content
-    assert (
-        f'export AWS_SECRET_ACCESS_KEY={quote("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")}'
-        in content
-    )
-    assert f'export AWS_SESSION_TOKEN={quote("AQoDYXdzEJr...")}' in content
+    assert f"export AWS_ACCESS_KEY_ID={quote('AKIAIOSFODNN7EXAMPLE')}" in content
+    assert f"export AWS_SECRET_ACCESS_KEY={quote('wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY')}" in content
+    assert f"export AWS_SESSION_TOKEN={quote('AQoDYXdzEJr...')}" in content
 
 
 def test_write_credentials_script_file_permissions(tmp_path: Path) -> None:

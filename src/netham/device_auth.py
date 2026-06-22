@@ -45,9 +45,7 @@ def request_device_authorization(config: Config) -> dict:
     try:
         response = requests.post(
             url,
-            data={
-                "client_id": config.client_id
-            },
+            data={"client_id": config.client_id},
             timeout=30,
         )
         response.raise_for_status()

@@ -44,18 +44,12 @@ def _make_response(ok: bool, data: dict) -> MagicMock:
 
 def test_device_auth_endpoint() -> None:
     url = _device_auth_endpoint("https://issuer.example.com/realms/test")
-    assert url == (
-        "https://issuer.example.com/realms/test"
-        "/protocol/openid-connect/auth/device"
-    )
+    assert url == ("https://issuer.example.com/realms/test/protocol/openid-connect/auth/device")
 
 
 def test_token_endpoint() -> None:
     url = _token_endpoint("https://issuer.example.com/realms/test")
-    assert url == (
-        "https://issuer.example.com/realms/test"
-        "/protocol/openid-connect/token"
-    )
+    assert url == ("https://issuer.example.com/realms/test/protocol/openid-connect/token")
 
 
 # --- request_device_authorization ---

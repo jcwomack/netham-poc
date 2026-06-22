@@ -27,7 +27,11 @@ jobs:
 
       - name: Build and run tests
         uses: devcontainers/ci@v0.3
+        env:
+          UV_PROJECT_ENVIRONMENT: "/home/devuser/ci_venv"
         with:
           configFile: ./.devcontainer/devcontainer.json
           push: never
+          env:
+            UV_PROJECT_ENVIRONMENT
           runCmd: uv run --no-cache pytest --verbose tests
