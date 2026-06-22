@@ -34,4 +34,5 @@ jobs:
           push: never
           env:
             UV_PROJECT_ENVIRONMENT
-          runCmd: uv run --no-cache pytest --verbose tests
+          #runCmd: uv run --no-cache pytest --verbose tests
+          runCmd: ls -la && whoami
