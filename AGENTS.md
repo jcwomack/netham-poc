@@ -60,8 +60,22 @@ reuse lint
 
 ## Testing
 
-After making a modification to the repository, the agent should ensure that all `pytest` tests pass. If a test fails after a change, the cause of the failure should be investigated and a fix proposed.
+After making a modification to the repository, the agent should ensure that all `pytest` tests pass:
 
-## Linting
+```shell
+uv run pytest --verbose tests
+```
 
-After making a modification to the repository, the agent should ensure that `reuse lint` passes.
+If a test fails after a change, the cause of the failure should be investigated and a fix proposed.
+
+## Linting and Formatting
+
+After making a modification to the repository, the agent should ensure that all linting and formatting checks pass:
+
+```shell
+uv run ruff check
+uv run ruff format --check
+reuse lint
+```
+
+If `uv run ruff check` reports issues, run `uv run ruff check --fix` to apply automatic fixes where possible. If `uv run ruff format --check` reports issues, run `uv run ruff format` to apply formatting.
