@@ -11,8 +11,8 @@ from shlex import quote
 from unittest.mock import MagicMock, patch
 
 import botocore.exceptions
-from botocore import UNSIGNED
 import pytest
+from botocore import UNSIGNED
 
 from netham.config import Config
 from netham.credentials import (

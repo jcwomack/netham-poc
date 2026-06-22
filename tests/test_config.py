@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT
 """Tests for netham.config."""
 
-import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
