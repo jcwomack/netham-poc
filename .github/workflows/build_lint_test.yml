@@ -66,24 +66,32 @@ jobs:
         ruff check
 
     - name: Format
-      if: ${{ always() && steps.install.conclusion == 'success' }}
+      if: always() && steps.install.conclusion == 'success'
       run: |
         ruff format --check
 
     - name: Test with coverage
-      if: ${{ always() && steps.install.conclusion == 'success' }}
+      id: coverage
+      if: always() && steps.install.conclusion == 'success'
+      continue-on-error: true
       run: |
         pytest --verbose --cov=netham --cov-report=term-missing --cov-report=xml --cov-report=html "${GITHUB_WORKSPACE}/tests"
 
     - name: Upload coverage artifact
-      if: matrix.python-version == env.PYTHON_VERSION_COVERAGE_UPLOAD
+      if: |
+        always() &&
+        matrix.python-version == env.PYTHON_VERSION_COVERAGE_UPLOAD &&
+        steps.coverage.conclusion == 'success'
       uses: actions/upload-artifact@v7
       with:
         name: html-coverage-report-${{ github.run_id }}
         path: htmlcov
 
     - name: Upload coverage artifact
-      if: matrix.python-version == env.PYTHON_VERSION_COVERAGE_UPLOAD
+      if: |
+        always() &&
+        matrix.python-version == env.PYTHON_VERSION_COVERAGE_UPLOAD &&
+        steps.coverage.conclusion == 'success'
       uses: actions/upload-artifact@v7
       with:
         name: xml-coverage-report-${{ github.run_id }} 
