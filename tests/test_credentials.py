@@ -139,7 +139,7 @@ def test_assume_role_without_duration_omits_duration_seconds(mock_boto_client: M
 
 
 @patch("netham.credentials.boto3.client")
-def test_assume_role_duration_below_minimum_exits(mock_boto_client: MagicMock) -> None:
+def test_assume_role_duration_below_minimum_raises_valueerror(mock_boto_client: MagicMock) -> None:
     """A duration below 15 minutes raises ValueError before calling STS."""
     mock_boto_client.return_value = MagicMock()
     config_short = Config(
