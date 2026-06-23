@@ -7,7 +7,8 @@ increasing precedence:
 
 1. Default config file: ``$XDG_CONFIG_HOME/netham/config.toml`` (falling back
    to ``~/.config/netham/config.toml`` when ``XDG_CONFIG_HOME`` is unset)
-2. Local config file: ``./netham.toml`` in the current working directory
+2. Local config file: caller-specified path, defaulting to ``./netham.toml``
+   in the current working directory (see :data:`LOCAL_CONFIG_PATH`)
 3. Explicit overrides passed by the caller (e.g. from CLI arguments)
 """
 
