@@ -54,7 +54,7 @@ def _load_toml_file(path: Path) -> dict:
         return tomllib.load(f)
 
 
-def load_config(overrides: dict[str, str | int]) -> "Config":
+def load_config(overrides: dict[str, str | int | None]) -> "Config":
     """Load and validate configuration from files and caller-supplied overrides.
 
     Values are merged in order of increasing precedence: the default config
