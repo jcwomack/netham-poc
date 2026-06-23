@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from netham import __version__
 from netham.cli import main
 
 
@@ -171,6 +172,14 @@ def test_s3_endpoint_url_overrides_sts_endpoint_url_from_cli(
         )
     config = mock_write.call_args[0][0]
     assert config.s3_endpoint_url == "https://s3.example.com"
+
+
+def test_version_prints_version_and_exits(capsys: pytest.CaptureFixture) -> None:
+    """``--version`` prints the package version to stdout and exits with code 0."""
+    with pytest.raises(SystemExit) as exc_info:
+        _run_main(["netham", "--version"])
+    assert exc_info.value.code == 0
+    assert __version__ in capsys.readouterr().out
 
 
 def test_no_subcommand_exits() -> None:

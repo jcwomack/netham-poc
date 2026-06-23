@@ -9,6 +9,7 @@ Device Authorization Grant flow and writes temporary AWS credentials to a file.
 import argparse
 from pathlib import Path
 
+from netham import __version__
 from netham.config import load_config
 from netham.credentials import acquire_and_write_credentials
 from netham.device_auth import acquire_access_token
@@ -22,6 +23,11 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="netham",
         description="Acquire temporary AWS credentials via OpenID Connect.",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
     )
     parser.add_argument(
         "--config",
