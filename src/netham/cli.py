@@ -23,6 +23,13 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="netham",
         description="Acquire temporary AWS credentials via OpenID Connect.",
     )
+    parser.add_argument(
+        "--config",
+        metavar="FILE",
+        type=Path,
+        default=Path("./netham.toml").resolve(),
+        help="Path to the local config file (default: ./netham.toml).",
+    )
     subparsers = parser.add_subparsers(title="subcommands", required=True)
 
     auth_parser = subparsers.add_parser(
@@ -93,7 +100,7 @@ def _cmd_auth(args: argparse.Namespace) -> None:
         "s3_endpoint_url": args.s3_endpoint_url,
         "assumed_role_duration_minutes": args.assumed_role_duration_minutes,
     }
-    config = load_config(overrides)
+    config = load_config(overrides, local_config_path=args.config)
     access_token = acquire_access_token(config)
     acquire_and_write_credentials(config, access_token, Path(args.output))
 

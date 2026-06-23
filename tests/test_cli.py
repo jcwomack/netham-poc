@@ -35,6 +35,23 @@ def test_auth_calls_all_steps(
 @patch("netham.cli.acquire_and_write_credentials")
 @patch("netham.cli.acquire_access_token", return_value="tok")
 @patch("netham.cli.load_config")
+def test_config_arg_passed_as_local_config_path(
+    mock_load: MagicMock,
+    mock_acquire: MagicMock,
+    mock_write: MagicMock,
+    tmp_path: Path,
+) -> None:
+    """``--config`` is forwarded to ``load_config`` as ``local_config_path``."""
+    mock_load.return_value = MagicMock()
+    config_file = tmp_path / "custom.toml"
+    _run_main(["netham", "--config", str(config_file), "auth"])
+    _, kwargs = mock_load.call_args
+    assert kwargs["local_config_path"] == config_file
+
+
+@patch("netham.cli.acquire_and_write_credentials")
+@patch("netham.cli.acquire_access_token", return_value="tok")
+@patch("netham.cli.load_config")
 def test_cli_overrides_passed_to_load_config(
     mock_load: MagicMock,
     mock_acquire: MagicMock,
@@ -122,11 +139,8 @@ def test_s3_endpoint_url_defaults_to_sts_endpoint_url_from_cli(
     config_file = tmp_path / "config.toml"
     config_file.write_text(_MINIMAL_CONFIG, encoding="utf-8")
     nonexistent = tmp_path / "netham.toml"
-    with (
-        patch("netham.config.DEFAULT_CONFIG_PATH", config_file),
-        patch("netham.config.LOCAL_CONFIG_PATH", nonexistent),
-    ):
-        _run_main(["netham", "auth", "--sts-endpoint-url", "https://sts.example.com"])
+    with patch("netham.config.DEFAULT_CONFIG_PATH", config_file):
+        _run_main(["netham", "--config", str(nonexistent), "auth", "--sts-endpoint-url", "https://sts.example.com"])
     config = mock_write.call_args[0][0]
     assert config.s3_endpoint_url == "https://sts.example.com"
 
@@ -142,13 +156,12 @@ def test_s3_endpoint_url_overrides_sts_endpoint_url_from_cli(
     config_file = tmp_path / "config.toml"
     config_file.write_text(_MINIMAL_CONFIG, encoding="utf-8")
     nonexistent = tmp_path / "netham.toml"
-    with (
-        patch("netham.config.DEFAULT_CONFIG_PATH", config_file),
-        patch("netham.config.LOCAL_CONFIG_PATH", nonexistent),
-    ):
+    with patch("netham.config.DEFAULT_CONFIG_PATH", config_file):
         _run_main(
             [
                 "netham",
+                "--config",
+                str(nonexistent),
                 "auth",
                 "--sts-endpoint-url",
                 "https://sts.example.com",
