@@ -119,3 +119,56 @@ def test_assumed_role_duration_minutes_defaults_to_none(tmp_path: Path) -> None:
     ):
         config = load_config({})
     assert config.assumed_role_duration_minutes is None
+
+
+def test_s3_endpoint_url_explicit(tmp_path: Path) -> None:
+    """``s3_endpoint_url`` is loaded from config when explicitly set."""
+    content = _FULL_CONFIG + 's3_endpoint_url = "https://s3.example.com"\n'
+    default = _write_toml(tmp_path, "config.toml", content)
+    nonexistent = tmp_path / "netham.toml"
+    with (
+        patch("netham.config.DEFAULT_CONFIG_PATH", default),
+        patch("netham.config.LOCAL_CONFIG_PATH", nonexistent),
+    ):
+        config = load_config({})
+    assert config.s3_endpoint_url == "https://s3.example.com"
+
+
+def test_s3_endpoint_url_defaults_to_none_when_neither_set(tmp_path: Path) -> None:
+    """``s3_endpoint_url`` is ``None`` when neither ``s3_endpoint_url`` nor ``sts_endpoint_url`` is set."""
+    default = _write_toml(tmp_path, "config.toml", _FULL_CONFIG)
+    nonexistent = tmp_path / "netham.toml"
+    with (
+        patch("netham.config.DEFAULT_CONFIG_PATH", default),
+        patch("netham.config.LOCAL_CONFIG_PATH", nonexistent),
+    ):
+        config = load_config({})
+    assert config.s3_endpoint_url is None
+
+
+def test_s3_endpoint_url_falls_back_to_sts_endpoint_url(tmp_path: Path) -> None:
+    """``s3_endpoint_url`` falls back to ``sts_endpoint_url`` when not explicitly set."""
+    content = _FULL_CONFIG + 'sts_endpoint_url = "https://sts.example.com"\n'
+    default = _write_toml(tmp_path, "config.toml", content)
+    nonexistent = tmp_path / "netham.toml"
+    with (
+        patch("netham.config.DEFAULT_CONFIG_PATH", default),
+        patch("netham.config.LOCAL_CONFIG_PATH", nonexistent),
+    ):
+        config = load_config({})
+    assert config.s3_endpoint_url == "https://sts.example.com"
+
+
+def test_s3_endpoint_url_takes_precedence_over_sts_endpoint_url(tmp_path: Path) -> None:
+    """An explicit ``s3_endpoint_url`` takes precedence over ``sts_endpoint_url``."""
+    content = (
+        _FULL_CONFIG + 'sts_endpoint_url = "https://sts.example.com"\n' + 's3_endpoint_url = "https://s3.example.com"\n'
+    )
+    default = _write_toml(tmp_path, "config.toml", content)
+    nonexistent = tmp_path / "netham.toml"
+    with (
+        patch("netham.config.DEFAULT_CONFIG_PATH", default),
+        patch("netham.config.LOCAL_CONFIG_PATH", nonexistent),
+    ):
+        config = load_config({})
+    assert config.s3_endpoint_url == "https://s3.example.com"

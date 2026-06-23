@@ -91,6 +91,75 @@ def test_assumed_role_duration_override_passed_as_int(
     assert isinstance(overrides["assumed_role_duration_minutes"], int)
 
 
+@patch("netham.cli.acquire_and_write_credentials")
+@patch("netham.cli.acquire_access_token", return_value="tok")
+@patch("netham.cli.load_config")
+def test_s3_endpoint_url_override_passed_to_load_config(
+    mock_load: MagicMock,
+    mock_acquire: MagicMock,
+    mock_write: MagicMock,
+) -> None:
+    """--s3-endpoint-url is forwarded to load_config as an override."""
+    mock_load.return_value = MagicMock()
+    _run_main(["netham", "auth", "--s3-endpoint-url", "https://s3.example.com"])
+    overrides = mock_load.call_args[0][0]
+    assert overrides["s3_endpoint_url"] == "https://s3.example.com"
+
+
+_MINIMAL_CONFIG = (
+    'issuer_url = "https://issuer.example.com"\nclient_id = "myclient"\nrole_arn = "arn:aws:iam::123:role/R"\n'
+)
+
+
+@patch("netham.cli.acquire_and_write_credentials")
+@patch("netham.cli.acquire_access_token", return_value="tok")
+def test_s3_endpoint_url_defaults_to_sts_endpoint_url_from_cli(
+    mock_acquire: MagicMock,
+    mock_write: MagicMock,
+    tmp_path: Path,
+) -> None:
+    """When --sts-endpoint-url is set and --s3-endpoint-url is unset, s3_endpoint_url defaults to the sts value."""
+    config_file = tmp_path / "config.toml"
+    config_file.write_text(_MINIMAL_CONFIG, encoding="utf-8")
+    nonexistent = tmp_path / "netham.toml"
+    with (
+        patch("netham.config.DEFAULT_CONFIG_PATH", config_file),
+        patch("netham.config.LOCAL_CONFIG_PATH", nonexistent),
+    ):
+        _run_main(["netham", "auth", "--sts-endpoint-url", "https://sts.example.com"])
+    config = mock_write.call_args[0][0]
+    assert config.s3_endpoint_url == "https://sts.example.com"
+
+
+@patch("netham.cli.acquire_and_write_credentials")
+@patch("netham.cli.acquire_access_token", return_value="tok")
+def test_s3_endpoint_url_overrides_sts_endpoint_url_from_cli(
+    mock_acquire: MagicMock,
+    mock_write: MagicMock,
+    tmp_path: Path,
+) -> None:
+    """When both --sts-endpoint-url and --s3-endpoint-url are set, the s3 value takes precedence."""
+    config_file = tmp_path / "config.toml"
+    config_file.write_text(_MINIMAL_CONFIG, encoding="utf-8")
+    nonexistent = tmp_path / "netham.toml"
+    with (
+        patch("netham.config.DEFAULT_CONFIG_PATH", config_file),
+        patch("netham.config.LOCAL_CONFIG_PATH", nonexistent),
+    ):
+        _run_main(
+            [
+                "netham",
+                "auth",
+                "--sts-endpoint-url",
+                "https://sts.example.com",
+                "--s3-endpoint-url",
+                "https://s3.example.com",
+            ]
+        )
+    config = mock_write.call_args[0][0]
+    assert config.s3_endpoint_url == "https://s3.example.com"
+
+
 def test_no_subcommand_exits() -> None:
     """Running netham without a subcommand causes SystemExit."""
     with pytest.raises(SystemExit):

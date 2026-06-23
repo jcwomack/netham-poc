@@ -29,6 +29,8 @@ class Config:
     :param client_id: OAuth 2.0 client ID registered with the issuer.
     :param role_arn: ARN of the AWS IAM role to assume.
     :param sts_endpoint_url: Optional STS endpoint URL for non-AWS providers.
+    :param s3_endpoint_url: Optional S3 endpoint URL for non-AWS providers.
+        Defaults to ``sts_endpoint_url`` when not explicitly configured.
     :param assumed_role_duration_minutes: Optional duration for the assumed-role
         session in minutes. When ``None``, the STS default is used.
     """
@@ -37,6 +39,7 @@ class Config:
     client_id: str
     role_arn: str
     sts_endpoint_url: str | None = None
+    s3_endpoint_url: str | None = None
     assumed_role_duration_minutes: int | None = None
 
 
@@ -84,10 +87,12 @@ def load_config(overrides: dict[str, str | int | None]) -> "Config":
     if duration is not None and type(duration) is not int:
         sys.exit(f"assumed_role_duration_minutes must be an integer, got {type(duration).__name__!r}.")
 
+    s3_endpoint_url = merged.get("s3_endpoint_url") or merged.get("sts_endpoint_url")
     return Config(
         issuer_url=merged["issuer_url"],
         client_id=merged["client_id"],
         role_arn=merged["role_arn"],
         sts_endpoint_url=merged.get("sts_endpoint_url"),
+        s3_endpoint_url=s3_endpoint_url,
         assumed_role_duration_minutes=merged.get("assumed_role_duration_minutes"),
     )

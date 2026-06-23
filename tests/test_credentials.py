@@ -178,6 +178,15 @@ def test_write_credentials_script_file_contents(tmp_path: Path) -> None:
     assert f"export AWS_ACCESS_KEY_ID={quote('AKIAIOSFODNN7EXAMPLE')}" in content
     assert f"export AWS_SECRET_ACCESS_KEY={quote('wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY')}" in content
     assert f"export AWS_SESSION_TOKEN={quote('AQoDYXdzEJr...')}" in content
+    assert "AWS_ENDPOINT_URL_S3" not in content
+
+
+def test_write_credentials_script_with_s3_endpoint_url(tmp_path: Path) -> None:
+    """Output file includes AWS_ENDPOINT_URL_S3 when s3_endpoint_url is provided."""
+    output = tmp_path / "creds_env.sh"
+    write_credentials_script(_CREDENTIALS, output, s3_endpoint_url="https://s3.example.com")
+    content = output.read_text(encoding="utf-8")
+    assert f"export AWS_ENDPOINT_URL_S3={quote('https://s3.example.com')}" in content
 
 
 def test_write_credentials_script_file_permissions(tmp_path: Path) -> None:

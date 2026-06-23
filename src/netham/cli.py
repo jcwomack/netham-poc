@@ -60,6 +60,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="STS endpoint URL for non-AWS providers (overrides config file).",
     )
     auth_parser.add_argument(
+        "--s3-endpoint-url",
+        metavar="URL",
+        dest="s3_endpoint_url",
+        help="S3 endpoint URL for non-AWS providers (overrides config file). Defaults to --sts-endpoint-url if set.",
+    )
+    auth_parser.add_argument(
         "--assumed-role-duration",
         metavar="MINUTES",
         dest="assumed_role_duration_minutes",
@@ -84,6 +90,7 @@ def _cmd_auth(args: argparse.Namespace) -> None:
         "client_id": args.client_id,
         "role_arn": args.role_arn,
         "sts_endpoint_url": args.sts_endpoint_url,
+        "s3_endpoint_url": args.s3_endpoint_url,
         "assumed_role_duration_minutes": args.assumed_role_duration_minutes,
     }
     config = load_config(overrides)

@@ -97,13 +97,15 @@ def assume_role(config: Config, access_token: str, role_session_name: str) -> di
     return response["Credentials"]
 
 
-def write_credentials_script(credentials: dict, output_path: Path) -> None:
+def write_credentials_script(credentials: dict, output_path: Path, s3_endpoint_url: str | None = None) -> None:
     """Write a bash script that exports AWS credentials as environment variables.
 
     The output file is set to mode 0o600 (owner read/write only).
 
     :param credentials: Credentials dict from :func:`assume_role`.
     :param output_path: Destination path for the shell script.
+    :param s3_endpoint_url: Optional S3 endpoint URL to export as
+        ``AWS_ENDPOINT_URL_S3``.
     """
     content = (
         "#!/bin/bash\n"
@@ -111,6 +113,8 @@ def write_credentials_script(credentials: dict, output_path: Path) -> None:
         f"export AWS_SECRET_ACCESS_KEY={quote(credentials['SecretAccessKey'])}\n"
         f"export AWS_SESSION_TOKEN={quote(credentials['SessionToken'])}\n"
     )
+    if s3_endpoint_url is not None:
+        content += f"export AWS_ENDPOINT_URL_S3={quote(s3_endpoint_url)}\n"
     output_path.write_text(content, encoding="utf-8")
     output_path.chmod(0o600)
 
@@ -130,7 +134,7 @@ def acquire_and_write_credentials(config: Config, access_token: str, output_path
     sub = extract_sub(payload)
     role_session_name = f"{sub}-session"
     credentials = assume_role(config, access_token, role_session_name)
-    write_credentials_script(credentials, output_path)
+    write_credentials_script(credentials, output_path, s3_endpoint_url=config.s3_endpoint_url)
     print(
         f"S3 temporary access credentials acquired for user {sub}."
         f" Add these to your environment by running\n\nsource {output_path}\n"
