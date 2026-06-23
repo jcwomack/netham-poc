@@ -9,6 +9,7 @@ words:
   - docstrings
   - netham
   - pytest
+  - rclone
   - venv
 ignoreWords: []
 import: []
