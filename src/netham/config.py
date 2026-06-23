@@ -62,8 +62,8 @@ def load_config(overrides: dict[str, str | int | None]) -> "Config":
     is printed and the process exits if any required key is missing after
     merging.
 
-    :param overrides: Mapping of config key names to string values that take
-        precedence over any file-based configuration.
+    :param overrides: Mapping of config key names to string or integer values that take
+        precedence over any file-based configuration. Values of ``None`` are ignored.
     :returns: Validated :class:`Config` instance.
     :raises SystemExit: If required configuration keys are missing or a value
         has an unexpected type.
