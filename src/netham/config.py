@@ -34,7 +34,7 @@ def _default_config_path() -> Path:
 
 
 DEFAULT_CONFIG_PATH = _default_config_path()
-LOCAL_CONFIG_PATH = Path("netham.toml")
+LOCAL_CONFIG_PATH = Path("./netham.toml").resolve()
 
 _REQUIRED_KEYS = ("issuer_url", "client_id", "role_arn")
 
