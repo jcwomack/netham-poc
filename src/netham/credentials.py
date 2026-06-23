@@ -20,6 +20,9 @@ from botocore.config import Config as BotocoreConfig
 
 from netham.config import Config
 
+# Minimum DurationSeconds accepted by assume_role_with_web_identity(), converted to minutes.
+_MIN_DURATION_MINUTES = 15
+
 
 def decode_jwt_payload(token: str) -> dict:
     """Decode the payload of a JWT without verifying the signature.
@@ -66,19 +69,29 @@ def assume_role(config: Config, access_token: str, role_session_name: str) -> di
     :param role_session_name: Name tag to apply to the assumed-role session.
     :returns: Credentials dictionary with keys ``AccessKeyId``,
         ``SecretAccessKey``, and ``SessionToken``.
-    :raises SystemExit: If the STS call fails.
+    :raises SystemExit: If the duration is below the minimum allowed value or
+        the STS call fails.
     """
+    if config.assumed_role_duration_minutes is not None:
+        if config.assumed_role_duration_minutes < _MIN_DURATION_MINUTES:
+            sys.exit(
+                f"assumed_role_duration_minutes must be at least {_MIN_DURATION_MINUTES}"
+                f" (got {config.assumed_role_duration_minutes})."
+            )
     client = boto3.client(
         "sts",
         endpoint_url=config.sts_endpoint_url,
         config=BotocoreConfig(signature_version=UNSIGNED),
     )
+    kwargs: dict = {
+        "RoleArn": config.role_arn,
+        "RoleSessionName": role_session_name,
+        "WebIdentityToken": access_token,
+    }
+    if config.assumed_role_duration_minutes is not None:
+        kwargs["DurationSeconds"] = config.assumed_role_duration_minutes * 60
     try:
-        response = client.assume_role_with_web_identity(
-            RoleArn=config.role_arn,
-            RoleSessionName=role_session_name,
-            WebIdentityToken=access_token,
-        )
+        response = client.assume_role_with_web_identity(**kwargs)
     except botocore.exceptions.ClientError as exc:
         sys.exit(f"STS AssumeRoleWithWebIdentity failed: {exc}")
     return response["Credentials"]

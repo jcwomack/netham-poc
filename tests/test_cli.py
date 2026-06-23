@@ -75,6 +75,22 @@ def test_default_output_filename(
     assert output_path == Path("creds_env.sh")
 
 
+@patch("netham.cli.acquire_and_write_credentials")
+@patch("netham.cli.acquire_access_token", return_value="tok")
+@patch("netham.cli.load_config")
+def test_assumed_role_duration_override_passed_as_int(
+    mock_load: MagicMock,
+    mock_acquire: MagicMock,
+    mock_write: MagicMock,
+) -> None:
+    """--assumed-role-duration is forwarded to load_config as an integer override."""
+    mock_load.return_value = MagicMock()
+    _run_main(["netham", "auth", "--assumed-role-duration", "120"])
+    overrides = mock_load.call_args[0][0]
+    assert overrides["assumed_role_duration_minutes"] == 120
+    assert isinstance(overrides["assumed_role_duration_minutes"], int)
+
+
 def test_no_subcommand_exits() -> None:
     """Running netham without a subcommand causes SystemExit."""
     with pytest.raises(SystemExit):

@@ -103,6 +103,57 @@ def test_assume_role_returns_credentials(mock_boto_client: MagicMock) -> None:
 
 
 @patch("netham.credentials.boto3.client")
+def test_assume_role_with_duration_passes_duration_seconds(mock_boto_client: MagicMock) -> None:
+    """DurationSeconds is passed to STS when assumed_role_duration_minutes is set."""
+    mock_sts = MagicMock()
+    mock_sts.assume_role_with_web_identity.return_value = {"Credentials": _CREDENTIALS}
+    mock_boto_client.return_value = mock_sts
+    config_with_duration = Config(
+        issuer_url=_CONFIG.issuer_url,
+        client_id=_CONFIG.client_id,
+        role_arn=_CONFIG.role_arn,
+        assumed_role_duration_minutes=60,
+    )
+
+    assume_role(config_with_duration, "mytoken", "user42-session")
+
+    mock_sts.assume_role_with_web_identity.assert_called_once_with(
+        RoleArn=_CONFIG.role_arn,
+        RoleSessionName="user42-session",
+        WebIdentityToken="mytoken",
+        DurationSeconds=3600,
+    )
+
+
+@patch("netham.credentials.boto3.client")
+def test_assume_role_without_duration_omits_duration_seconds(mock_boto_client: MagicMock) -> None:
+    """DurationSeconds is not passed to STS when assumed_role_duration_minutes is None."""
+    mock_sts = MagicMock()
+    mock_sts.assume_role_with_web_identity.return_value = {"Credentials": _CREDENTIALS}
+    mock_boto_client.return_value = mock_sts
+
+    assume_role(_CONFIG, "mytoken", "user42-session")
+
+    _, kwargs = mock_sts.assume_role_with_web_identity.call_args
+    assert "DurationSeconds" not in kwargs
+
+
+@patch("netham.credentials.boto3.client")
+def test_assume_role_duration_below_minimum_exits(mock_boto_client: MagicMock) -> None:
+    """A duration below 15 minutes causes SystemExit before calling STS."""
+    mock_boto_client.return_value = MagicMock()
+    config_short = Config(
+        issuer_url=_CONFIG.issuer_url,
+        client_id=_CONFIG.client_id,
+        role_arn=_CONFIG.role_arn,
+        assumed_role_duration_minutes=14,
+    )
+    with pytest.raises(SystemExit):
+        assume_role(config_short, "mytoken", "user42-session")
+    mock_boto_client.return_value.assume_role_with_web_identity.assert_not_called()
+
+
+@patch("netham.credentials.boto3.client")
 def test_assume_role_client_error_exits(mock_boto_client: MagicMock) -> None:
     """A botocore ClientError causes SystemExit."""
     mock_sts = MagicMock()

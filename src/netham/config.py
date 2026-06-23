@@ -29,12 +29,15 @@ class Config:
     :param client_id: OAuth 2.0 client ID registered with the issuer.
     :param role_arn: ARN of the AWS IAM role to assume.
     :param sts_endpoint_url: Optional STS endpoint URL for non-AWS providers.
+    :param assumed_role_duration_minutes: Optional duration for the assumed-role
+        session in minutes. When ``None``, the STS default is used.
     """
 
     issuer_url: str
     client_id: str
     role_arn: str
     sts_endpoint_url: str | None = None
+    assumed_role_duration_minutes: int | None = None
 
 
 def _load_toml_file(path: Path) -> dict:
@@ -51,7 +54,7 @@ def _load_toml_file(path: Path) -> dict:
         return tomllib.load(f)
 
 
-def load_config(overrides: dict[str, str]) -> "Config":
+def load_config(overrides: dict[str, str | int | None]) -> "Config":
     """Load and validate configuration from files and caller-supplied overrides.
 
     Values are merged in order of increasing precedence: the default config
@@ -59,10 +62,11 @@ def load_config(overrides: dict[str, str]) -> "Config":
     is printed and the process exits if any required key is missing after
     merging.
 
-    :param overrides: Mapping of config key names to string values that take
-        precedence over any file-based configuration.
+    :param overrides: Mapping of config key names to string or integer values that take
+        precedence over any file-based configuration. Values of ``None`` are ignored.
     :returns: Validated :class:`Config` instance.
-    :raises SystemExit: If required configuration keys are missing.
+    :raises SystemExit: If required configuration keys are missing or a value
+        has an unexpected type.
     """
     merged: dict = {}
     merged.update(_load_toml_file(DEFAULT_CONFIG_PATH))
@@ -76,9 +80,14 @@ def load_config(overrides: dict[str, str]) -> "Config":
             f"Set these in {DEFAULT_CONFIG_PATH} or {LOCAL_CONFIG_PATH}."
         )
 
+    duration = merged.get("assumed_role_duration_minutes")
+    if duration is not None and type(duration) is not int:
+        sys.exit(f"assumed_role_duration_minutes must be an integer, got {type(duration).__name__!r}.")
+
     return Config(
         issuer_url=merged["issuer_url"],
         client_id=merged["client_id"],
         role_arn=merged["role_arn"],
         sts_endpoint_url=merged.get("sts_endpoint_url"),
+        assumed_role_duration_minutes=merged.get("assumed_role_duration_minutes"),
     )

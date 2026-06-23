@@ -6,7 +6,8 @@ __pycache__/
 /.vscode/
 /venv/
 /.venv/
-creds_env.sh
+/creds_env.sh
+/netham.toml
 /.coverage
 /coverage.xml
 /htmlcov/
