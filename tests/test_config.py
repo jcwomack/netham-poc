@@ -152,3 +152,9 @@ def test_default_config_path_falls_back_to_home_config(monkeypatch: pytest.Monke
     """``_default_config_path`` falls back to ``~/.config`` when ``XDG_CONFIG_HOME`` is unset."""
     monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
     assert _default_config_path() == Path.home() / ".config" / "netham" / "config.toml"
+
+
+def test_default_config_path_expands_tilde_in_xdg_config_home(monkeypatch: pytest.MonkeyPatch) -> None:
+    """``_default_config_path`` expands ``~`` in ``XDG_CONFIG_HOME``."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", "~/.config/custom")
+    assert _default_config_path() == Path.home() / ".config" / "custom" / "netham" / "config.toml"

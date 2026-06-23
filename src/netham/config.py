@@ -28,7 +28,7 @@ def _default_config_path() -> Path:
         base directory.
     """
     xdg_config_home = os.environ.get("XDG_CONFIG_HOME")
-    base = Path(xdg_config_home) if xdg_config_home else Path.home() / ".config"
+    base = Path(xdg_config_home).expanduser() if xdg_config_home else Path.home() / ".config"
     return base / "netham" / "config.toml"
 
 
