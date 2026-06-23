@@ -96,6 +96,19 @@ def test_assumed_role_duration_minutes_loaded_from_config(tmp_path: Path) -> Non
     assert config.assumed_role_duration_minutes == 120
 
 
+def test_assumed_role_duration_minutes_wrong_type_exits(tmp_path: Path) -> None:
+    """A non-integer value for ``assumed_role_duration_minutes`` causes SystemExit."""
+    content = _FULL_CONFIG + 'assumed_role_duration_minutes = "120"\n'
+    default = _write_toml(tmp_path, "config.toml", content)
+    nonexistent = tmp_path / "netham.toml"
+    with (
+        patch("netham.config.DEFAULT_CONFIG_PATH", default),
+        patch("netham.config.LOCAL_CONFIG_PATH", nonexistent),
+        pytest.raises(SystemExit),
+    ):
+        load_config({})
+
+
 def test_assumed_role_duration_minutes_defaults_to_none(tmp_path: Path) -> None:
     """``assumed_role_duration_minutes`` defaults to ``None`` when absent from config."""
     default = _write_toml(tmp_path, "config.toml", _FULL_CONFIG)

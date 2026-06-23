@@ -65,7 +65,8 @@ def load_config(overrides: dict[str, str | int]) -> "Config":
     :param overrides: Mapping of config key names to string values that take
         precedence over any file-based configuration.
     :returns: Validated :class:`Config` instance.
-    :raises SystemExit: If required configuration keys are missing.
+    :raises SystemExit: If required configuration keys are missing or a value
+        has an unexpected type.
     """
     merged: dict = {}
     merged.update(_load_toml_file(DEFAULT_CONFIG_PATH))
@@ -78,6 +79,10 @@ def load_config(overrides: dict[str, str | int]) -> "Config":
             f"Missing required configuration: {', '.join(missing)}\n"
             f"Set these in {DEFAULT_CONFIG_PATH} or {LOCAL_CONFIG_PATH}."
         )
+
+    duration = merged.get("assumed_role_duration_minutes")
+    if duration is not None and not isinstance(duration, int):
+        sys.exit(f"assumed_role_duration_minutes must be an integer, got {type(duration).__name__!r}.")
 
     return Config(
         issuer_url=merged["issuer_url"],
