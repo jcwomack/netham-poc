@@ -81,3 +81,28 @@ def test_optional_sts_endpoint_url(tmp_path: Path) -> None:
     ):
         config = load_config({})
     assert config.sts_endpoint_url == "https://sts.example.com"
+
+
+def test_assumed_role_duration_minutes_loaded_from_config(tmp_path: Path) -> None:
+    """``assumed_role_duration_minutes`` is loaded from config as an integer."""
+    content = _FULL_CONFIG + "assumed_role_duration_minutes = 120\n"
+    default = _write_toml(tmp_path, "config.toml", content)
+    nonexistent = tmp_path / "netham.toml"
+    with (
+        patch("netham.config.DEFAULT_CONFIG_PATH", default),
+        patch("netham.config.LOCAL_CONFIG_PATH", nonexistent),
+    ):
+        config = load_config({})
+    assert config.assumed_role_duration_minutes == 120
+
+
+def test_assumed_role_duration_minutes_defaults_to_none(tmp_path: Path) -> None:
+    """``assumed_role_duration_minutes`` defaults to ``None`` when absent from config."""
+    default = _write_toml(tmp_path, "config.toml", _FULL_CONFIG)
+    nonexistent = tmp_path / "netham.toml"
+    with (
+        patch("netham.config.DEFAULT_CONFIG_PATH", default),
+        patch("netham.config.LOCAL_CONFIG_PATH", nonexistent),
+    ):
+        config = load_config({})
+    assert config.assumed_role_duration_minutes is None

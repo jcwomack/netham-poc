@@ -29,12 +29,15 @@ class Config:
     :param client_id: OAuth 2.0 client ID registered with the issuer.
     :param role_arn: ARN of the AWS IAM role to assume.
     :param sts_endpoint_url: Optional STS endpoint URL for non-AWS providers.
+    :param assumed_role_duration_minutes: Optional duration for the assumed-role
+        session in minutes. When ``None``, the STS default is used.
     """
 
     issuer_url: str
     client_id: str
     role_arn: str
     sts_endpoint_url: str | None = None
+    assumed_role_duration_minutes: int | None = None
 
 
 def _load_toml_file(path: Path) -> dict:
@@ -51,7 +54,7 @@ def _load_toml_file(path: Path) -> dict:
         return tomllib.load(f)
 
 
-def load_config(overrides: dict[str, str]) -> "Config":
+def load_config(overrides: dict[str, str | int]) -> "Config":
     """Load and validate configuration from files and caller-supplied overrides.
 
     Values are merged in order of increasing precedence: the default config
@@ -81,4 +84,5 @@ def load_config(overrides: dict[str, str]) -> "Config":
         client_id=merged["client_id"],
         role_arn=merged["role_arn"],
         sts_endpoint_url=merged.get("sts_endpoint_url"),
+        assumed_role_duration_minutes=merged.get("assumed_role_duration_minutes"),
     )

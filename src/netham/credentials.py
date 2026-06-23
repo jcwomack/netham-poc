@@ -73,12 +73,15 @@ def assume_role(config: Config, access_token: str, role_session_name: str) -> di
         endpoint_url=config.sts_endpoint_url,
         config=BotocoreConfig(signature_version=UNSIGNED),
     )
+    kwargs: dict = {
+        "RoleArn": config.role_arn,
+        "RoleSessionName": role_session_name,
+        "WebIdentityToken": access_token,
+    }
+    if config.assumed_role_duration_minutes is not None:
+        kwargs["DurationSeconds"] = config.assumed_role_duration_minutes * 60
     try:
-        response = client.assume_role_with_web_identity(
-            RoleArn=config.role_arn,
-            RoleSessionName=role_session_name,
-            WebIdentityToken=access_token,
-        )
+        response = client.assume_role_with_web_identity(**kwargs)
     except botocore.exceptions.ClientError as exc:
         sys.exit(f"STS AssumeRoleWithWebIdentity failed: {exc}")
     return response["Credentials"]
